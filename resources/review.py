@@ -42,3 +42,36 @@ class ReviewListResource(Resource) :
 
         return {"result" : "success"}, 200
 
+    @jwt_required()
+    def get(self) :
+
+        user_id = get_jwt_identity()
+
+        try :
+            connection = get_connection()
+
+            query = '''select m.title, r.rating, r.movie_id
+                    from rating r
+                    join movie m
+                    on r.movie_id = m.id
+                    where user_id = %s'''
+
+            record = ( user_id, )
+
+            cursor = connection.cursor(dictionary= True)
+
+            cursor.execute(query, record)
+
+            result_list = cursor.fetchall()
+
+            cursor.close()
+            connection.close()
+
+        except Error as e :
+            print(e)
+            cursor.close()
+            connection.close()
+
+            return {"result" : "fail", "error" : str(e)}, 500
+
+        return {"result" : "success", "items" : result_list, "count" : len(result_list)}, 200
