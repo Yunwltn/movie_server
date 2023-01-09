@@ -9,6 +9,8 @@ class MovieRecommendResource(Resource) :
 
     @jwt_required()
     def get(self) :
+        # 쿼리스트링으로 받는 데이터는 전부 문자열로 처리된다
+        count = request.args.get('count')
 
         # 1. 클라이언트로부터 데이터를 받아온다
         user_id = get_jwt_identity()
@@ -69,7 +71,7 @@ class MovieRecommendResource(Resource) :
                 similar_movies_list.drop(name, axis=0, inplace= True)
 
         # 7. 중복 추천된 영화는 weight가 가장 큰 값으로만 남기고 중복 제거한다
-        recomm_movie_list = similar_movies_list.groupby('title')['weight'].max().sort_values(ascending= False).head(10)
+        recomm_movie_list = similar_movies_list.groupby('title')['weight'].max().sort_values(ascending= False).head(int(count))
         # print(recomm_movie_list)
 
         # 8. 제이슨(json)으로 클라이언트에게 보낸다
