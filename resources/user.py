@@ -11,7 +11,7 @@ class UserRegisterResource(Resource) :
     def post(self) :
         # { "email": "abcd@naver.com",
         # "password": "bbb1234",
-        # "name": 김네임
+        # "name": "김네임"
         # "gender": "Male"}
 
         data = request.get_json()
