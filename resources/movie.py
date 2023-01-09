@@ -87,3 +87,43 @@ class MovieSearchResource(Resource) :
             return {"error" : str(e)}, 500
 
         return {"result" : "success", "items" : result_list, "count" : len(result_list)}, 200
+
+class MovieInformationResource(Resource) :
+
+    def get(self, movie_id) :
+        try :
+            connection = get_connection()
+
+            query = '''select m.id as movie_id, m.title, m.year,
+                    m.attendance, ifnull(avg(r.rating),0) as avg
+                    from movie m
+                    left join rating r
+                    on m.title = r. movie_id
+                    where m.id = %s
+                    group by m.id;'''
+
+            record = (movie_id, )
+
+            cursor = connection.cursor(dictionary= True)
+
+            cursor.execute(query, record)
+
+            result_list = cursor.fetchall()
+
+            i = 0
+            for row in result_list :
+                result_list[i]['year'] = row['year'].isoformat()
+                result_list[i]['avg'] = float(row['avg'])
+                i = i + 1
+
+            cursor.close()
+            connection.close()
+
+        except Error as e :
+            print(e)
+            cursor.close()
+            connection.close()
+
+            return {"error" : str(e)}, 500
+
+        return {"result" : "success", "items" : result_list, "count" : len(result_list)}, 200
