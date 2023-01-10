@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask import request
-from flask_jwt_extended import create_access_token, get_jwt, jwt_required
+from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required
 from flask_restful import Resource
 from mysql_connection import get_connection
 from mysql.connector import Error
@@ -109,7 +109,6 @@ class UserLoginResource(Resource) :
 jwt_blacklist = set()
 
 class UserLogoutResource(Resource) :
-
     @jwt_required()
     def post(self) :
         
@@ -119,3 +118,38 @@ class UserLogoutResource(Resource) :
         jwt_blacklist.add(jti)
 
         return {'result' : 'success'}, 200
+
+class UserInfoResource(Resource) :
+    @jwt_required()
+    def get(self) :
+        user_id = get_jwt_identity()
+
+        try :
+            connection = get_connection()
+
+            query = '''select email, name, gender
+                    from user
+                    where id = %s ;'''
+
+            record = ( user_id, )
+
+            cursor = connection.cursor(dictionary= True)
+
+            cursor.execute(query, record)
+
+            result_list = cursor.fetchall()
+
+            cursor.close()
+            connection.close()
+
+        except Error as e :
+            print(e)
+            cursor.close()
+            connection.close()
+
+            return {"result" : "fail", "error" : str(e)}, 500
+
+        if len(result_list) == 0 :
+            return {"error" : "잘못된 유저 아이디 입니다"}, 400
+
+        return {"result" : "success", "user" : result_list[0]}, 200
