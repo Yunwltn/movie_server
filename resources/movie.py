@@ -132,6 +132,7 @@ class MovieInformationResource(Resource) :
 
             result_list = cursor.fetchall()
 
+            # 세이프코딩
             if result_list[0]["id"] is None :
                 return {"error" : "잘못된 영화 아이디입니다"}, 400
 
