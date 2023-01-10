@@ -2,6 +2,7 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from config import Config
+from resources.favorite import FavoriteResource
 from resources.movie import MovieListResource, MovieSearchResource, MovieInformationResource
 from resources.recommend import MovieRecommendRealTimeResource, MovieRecommendResource
 from resources.review import ReviewListResource
@@ -32,6 +33,8 @@ api.add_resource(MovieSearchResource, '/movie/search')
 api.add_resource(MovieInformationResource, '/movie/<int:movie_id>')
 
 api.add_resource(MovieRecommendRealTimeResource, '/movie/recommend')
+
+api.add_resource(FavoriteResource, '/favorite/<int:movie_id>')
 
 if __name__ == '__main__' :
     app.run()
