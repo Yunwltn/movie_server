@@ -112,17 +112,17 @@ class MovieSearchResource(Resource) :
 
 class MovieInformationResource(Resource) :
 
+    @jwt_required(optional=True)
     def get(self, movie_id) :
         try :
             connection = get_connection()
 
-            query = '''select m.id as movie_id, m.title, m.year,
-                    m.attendance, ifnull(avg(r.rating),0) as avg
+            query = '''select m.id, m.title, m.year, m.attendance,
+                    ifnull(avg(r.rating),0) as avg, ifnull(count(r.movie_id),0) as cnt
                     from movie m
                     left join rating r
-                    on m.title = r. movie_id
-                    where m.id = %s
-                    group by m.id;'''
+                    on m.id = r.movie_id
+                    where m.id = %s;'''
 
             record = (movie_id, )
 
@@ -131,6 +131,9 @@ class MovieInformationResource(Resource) :
             cursor.execute(query, record)
 
             result_list = cursor.fetchall()
+
+            if result_list[0]["id"] is None :
+                return {"error" : "잘못된 영화 아이디입니다"}, 400
 
             i = 0
             for row in result_list :
@@ -148,4 +151,4 @@ class MovieInformationResource(Resource) :
 
             return {"error" : str(e)}, 500
 
-        return {"result" : "success", "items" : result_list, "count" : len(result_list)}, 200
+        return {"result" : "success", "movie" : result_list[0]}, 200

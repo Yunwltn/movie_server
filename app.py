@@ -31,7 +31,6 @@ api.add_resource(ReviewListResource, '/review')
 api.add_resource(MovieListResource, '/movie')
 api.add_resource(MovieSearchResource, '/movie/search')
 api.add_resource(MovieInformationResource, '/movie/<int:movie_id>')
-
 api.add_resource(MovieRecommendRealTimeResource, '/movie/recommend')
 
 api.add_resource(FavoriteResource, '/favorite/<int:movie_id>')
